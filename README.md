@@ -1,4 +1,4 @@
-# FocusME
+# [FocusME](https://github.com/dixflat/FocusME/)
 Helper script to focus open Linux/X window apps or launch another instance if window is already active or not found. 
 You can forget the hordes of orphaned terminals or myriads of app windows.
 
