@@ -8,9 +8,6 @@ It works by querying the open window names/classes for a string, then:
 - If not found it will launch the specified command.
 - If the window is found and it's active it will launch a new one.
 
-## In action
-![FocusME in action](https://raw.githubusercontent.com/dixflat/focusME/main/focusme_example.gif)
-
 ## Installation / required packages
 1. Install xdotool (apt install xdotool / apk add xdotool)
 2. Copy focusme to /usr/local/bin or somewhere inside your PATH
@@ -29,3 +26,5 @@ focusme firefox "firefox -P MAIN"
 
 ```
 
+## In action
+![FocusME in action](https://raw.githubusercontent.com/dixflat/focusME/main/focusme_example.gif)
