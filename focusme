@@ -1,0 +1,95 @@
+#!/bin/bash
+
+###Functionality:
+
+###It works by querying the open window names/classes for a string, then:
+
+#- If found it activates/focuses it.
+#- If not found it will launch the specified command.
+#- If the window is found and it's active it will launch a new one.
+
+#needs xdotool
+#apt install xdotool or apk add xdotool
+
+#___
+
+#Launch command in the background and exit
+#launch <command>
+function launch () {
+    if [[ ! $1 ]]
+    then
+	exit
+    fi
+    
+    $1 &>/dev/null &
+    exit
+}
+
+#Search window by given string in name, class etc. and return the resulting window ids or the first|last one
+#searchwindow <windowname> [first|last]
+function searchwindow () {
+#    local cmd="xdotool search --onlyvisible $1 2>/dev/null"
+    case $2 in
+	'first')
+	    local out=`xdotool search --onlyvisible $1 2>/dev/null | grep -m1 '[0-9]\+'`
+	;;
+	'last')
+	    local out=`xdotool search --onlyvisible $1 2>/dev/null | tail -1`
+	;;
+	*)
+	    local out=`xdotool search --onlyvisible $1 2>/dev/null`
+	;;
+    esac
+
+    #Note: Must double quote the echoed variable in order to preserve multiple lines, 
+    #since echo just prints a space delimited list of lines in a single line
+    echo "$out"
+}
+
+function checkdeps () {
+    command -v xdotool &>/dev/null || { echo >&2 "Xdotool required! Aborting."; exit 1; }
+}
+
+function checkparams () {
+if [ $1 -eq 0 ]
+then
+    echo "FocusME activates the given window by name, launch one if none found or the active window matches"
+    echo "More info: https://github.com/dixflat/FocusME"
+    echo ""
+    echo "Usage: focusme <windowname> [command]"
+    exit
+fi
+}
+
+###
+##
+#
+
+checkparams $#
+checkdeps
+
+WINDOWID=`searchwindow $1 first`
+WINDOWID_ACTIVE=`xdotool getactivewindow`
+WINDOWACTIVENAME=`xdotool getwindowname $WINDOWID_ACTIVE`
+NAME=$1
+COMMAND=$2
+
+#No matching window found, launching one
+if [[ ! $WINDOWID ]]
+then
+    launch "$COMMAND"
+    exit
+fi
+
+shopt -s nocasematch
+#Active window matches NAME, so launch a new one
+if [[ $WINDOWACTIVENAME =~ "$NAME" ]]
+then
+    launch "$COMMAND"
+else
+    #highlight a matching window
+    xdotool windowactivate $(searchwindow $1 last)
+fi
+shopt -u nocasematch
+
+#___
