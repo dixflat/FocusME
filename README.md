@@ -20,8 +20,11 @@ focusme <windowname> <command_to_launch>
 windowname - text part of the window name
 command_to_launch - the command to launch if window not found or already active
 
-Examples:
+## Examples:
 
 >focusme terminal xfce4-terminal
 
 >focusme firefox "firefox -P MAIN"
+
+## In action
+![FocusME in action](https://raw.githubusercontent.com/dixflat/focusME/main/focusme_example.gif)
