@@ -26,18 +26,26 @@ function launch () {
 }
 
 #Search window by given string in name, class etc. and return the resulting window ids or the first|last one
-#searchwindow <windowname> [first|last]
+#searchwindow <windowname> <type> [first|last] 
 function searchwindow () {
 #    local cmd="xdotool search --onlyvisible $1 2>/dev/null"
-    case $2 in
+
+    if [[ ! $1 || ! $2 ]]
+    then
+	echo >&2 "searchwindow usage: searchwindow <windowname> <type> [first|last]";
+	exit 1
+    fi
+
+
+    case $3 in
 	'first')
-	    local out=`xdotool search --onlyvisible $1 2>/dev/null | grep -m1 '[0-9]\+'`
+	    local out=`xdotool search --onlyvisible --$2 $1 2>/dev/null | grep -m1 '[0-9]\+'`
 	;;
 	'last')
-	    local out=`xdotool search --onlyvisible $1 2>/dev/null | tail -1`
+	    local out=`xdotool search --onlyvisible --$2 $1 2>/dev/null | tail -1`
 	;;
 	*)
-	    local out=`xdotool search --onlyvisible $1 2>/dev/null`
+	    local out=`xdotool search --onlyvisible --$2 $1 2>/dev/null`
 	;;
     esac
 
@@ -68,9 +76,11 @@ fi
 checkparams $#
 checkdeps
 
-WINDOWID=`searchwindow $1 first`
+WINDOWID=`searchwindow $1 class first`
 WINDOWID_ACTIVE=`xdotool getactivewindow`
 WINDOWACTIVENAME=`xdotool getwindowname $WINDOWID_ACTIVE`
+WINDOWACTIVECLASS=`xprop -id $WINDOWID_ACTIVE WM_CLASS`
+
 NAME=$1
 COMMAND=$2
 
@@ -82,13 +92,13 @@ then
 fi
 
 shopt -s nocasematch
-#Active window matches NAME, so launch a new one
-if [[ $WINDOWACTIVENAME =~ "$NAME" ]]
+#Active window matches NAME or its ID, so launch a new one
+if [[ $WINDOWACTIVECLASS =~ "$NAME" || $WINDOWID_ACTIVE == $WINDOWID ]]
 then
     launch "$COMMAND"
 else
     #highlight a matching window
-    xdotool windowactivate $(searchwindow $1 last)
+    xdotool windowactivate $(searchwindow $1 class last)
 fi
 shopt -u nocasematch
 
